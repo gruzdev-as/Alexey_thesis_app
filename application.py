@@ -6,6 +6,7 @@ from PyQt6 import QtWidgets, QtCore
 
 
 import ui_files.main_design as design
+from graphic_widgets import MplCanvas
 
 class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     '''Main window class'''
@@ -15,8 +16,19 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        ## Constants
+        ## Graphic Widgets
+        self.graph_first_widget = MplCanvas()
+        self.first_display_widget_lay = QtWidgets.QHBoxLayout(
+            self.first_display_widget
+            )
+        self.first_display_widget_lay.addWidget(self.graph_first_widget) 
 
+        self.graph_second_widget = MplCanvas()
+        self.second_display_widget_lay = QtWidgets.QHBoxLayout(
+            self.second_display_widget
+            )
+        self.second_display_widget_lay.addWidget(self.graph_second_widget) 
+        ## Constants
 
         ## Events 
         self.choosedata_button.clicked.connect(self.choose_data_file)

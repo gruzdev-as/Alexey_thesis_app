@@ -79,17 +79,29 @@
           <property name="minimumSize">
            <size>
             <width>400</width>
-            <height>0</height>
+            <height>300</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>400</width>
+            <height>300</height>
            </size>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="second_display_widge" native="true">
+         <widget class="QWidget" name="second_display_widget" native="true">
           <property name="minimumSize">
            <size>
             <width>400</width>
-            <height>0</height>
+            <height>300</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>400</width>
+            <height>300</height>
            </size>
           </property>
          </widget>
