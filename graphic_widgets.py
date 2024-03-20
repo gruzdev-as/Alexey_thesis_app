@@ -7,7 +7,7 @@ class MplCanvas(FigureCanvas):
     def __init__(self):
         ''' Executed when the class is instantiated '''
         fig = Figure() # Create a figure
-
+        self.axes = fig.add_subplot(111)
         fig.subplots_adjust(hspace = 0.5, # hspace = height space
                             left = 0.08,
                             right = 0.98, # 1 - 0.98 = 0.2
