@@ -10,6 +10,7 @@ import math
 
 import ui_files.main_design as design
 from graphic_widgets import MplCanvas
+from additional_window import Additional_window
 
 class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     '''Main window class'''
@@ -32,11 +33,18 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             )
         self.second_display_widget_lay.addWidget(self.graph_second_widget) 
         ## Constants
-
+        self.penetrability = 3e-11
+        self.viscosity = 3e-4
+        self.density =  1.1e3
+        self.preassure_start = 101325
+        self.preassure_end = 15199
+        self.capnum = 2.5e-4
+        self.sur_tension = 4.6e-2
         ## Events 
         self.choosedata_button.clicked.connect(self.choose_data_file)
         self.build_poly_button.clicked.connect(self.draw_polynom)
         self.calculate_length_button.clicked.connect(self.calculate_length)
+        self.adjust_coef_button.clicked.connect(self.show_additional_window)
     
     def choose_data_file(self):
         
@@ -92,3 +100,30 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.graph_second_widget.axes.plot(a, self.polynom(a), '.', markersize=10., color='red')
         self.graph_second_widget.axes.plot(b, self.polynom(b), '.', markersize=10., color='red')
         self.graph_second_widget.draw()
+
+    def show_additional_window(self):
+        '''Show the window with additional hydro_system settigs'''
+        
+        def aplly_changes(array):
+            
+            self.penetrability = float(array[0])
+            self.viscosity = float(array[1])
+            self.density = float(array[2])
+            self.preassure_start = float(array[3])
+            self.preassure_end = float(array[4])
+            self.capnum = float(array[5])
+            self.sur_tension = float(array[6])
+
+        self.edit_window = Additional_window(
+            self.penetrability,
+            self.viscosity,
+            self.density,
+            self.preassure_start,
+            self.preassure_end,
+            self.capnum,
+            self.sur_tension,
+        )
+        self.edit_window.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        self.edit_window.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)   
+        self.edit_window.submitClicked.connect(aplly_changes)
+        self.edit_window.show()
