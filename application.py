@@ -4,8 +4,9 @@ import pandas as pd
 
 
 from PyQt6 import QtWidgets, QtCore
-from sympy import symbols, S
-
+from sympy import symbols, S, lambdify
+from scipy.integrate import quad
+import math
 
 import ui_files.main_design as design
 from graphic_widgets import MplCanvas
@@ -35,6 +36,7 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         ## Events 
         self.choosedata_button.clicked.connect(self.choose_data_file)
         self.build_poly_button.clicked.connect(self.draw_polynom)
+        self.calculate_length_button.clicked.connect(self.calculate_length)
     
     def choose_data_file(self):
         
@@ -57,9 +59,9 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         
         polynom_degree = self.poly_degree_spinBox.value()
         coef = np.polyfit(self.X_data, self.Y_data, polynom_degree)
-        polynom = np.poly1d(coef)
+        self.polynom = np.poly1d(coef)
         self.x_poly_values = self.X_data
-        self.y_poly_values = polynom(self.X_data)
+        self.y_poly_values = self.polynom(self.X_data)
         
         # Draw the line 
         self.graph_first_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
@@ -67,7 +69,26 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         # Write the equation (not the beauty form)
         x = symbols('x')
-        formula = sum(S("{:}".format(v))*x**i for i, v in enumerate(coef[::-1]))
-        self.poly_display_textbrowser.setText(str(formula))
+        self.formula = sum(S("{:}".format(v))*x**i for i, v in enumerate(coef[::-1]))
+        self.poly_display_textbrowser.setText(str(self.formula))
 
+    def calculate_length(self):
 
+        a = int(self.pointA_lineEdit.text())
+        b = int(self.pointB_lineedit.text())
+        
+        def calc_derr(x_):
+
+            x = symbols('x')
+            derrivative = self.formula.diff(x)
+            return lambdify(x, derrivative)(x_)
+        
+        length, _ = quad(lambda x: math.sqrt(1+(calc_derr(x)**2)), a, b)
+        
+        self.length_label.setText(f'Длина участка от А до B = {length}')
+
+        # Draw the trajectory and points on it in the second view
+        self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='black')
+        self.graph_second_widget.axes.plot(a, self.polynom(a), '.', markersize=10., color='red')
+        self.graph_second_widget.axes.plot(b, self.polynom(b), '.', markersize=10., color='red')
+        self.graph_second_widget.draw()
