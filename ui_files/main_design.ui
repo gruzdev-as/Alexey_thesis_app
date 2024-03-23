@@ -28,6 +28,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QSpinBox" name="poly_degree_spinBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="value">
            <number>5</number>
           </property>
@@ -44,6 +47,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="build_poly_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Построить полином заданной степени</string>
         </property>
@@ -77,6 +83,9 @@
         </item>
         <item row="4" column="0">
          <widget class="QPushButton" name="calculate_length_button">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Расчет</string>
           </property>
@@ -90,7 +99,11 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLineEdit" name="pointB_lineedit"/>
+         <widget class="QLineEdit" name="pointB_lineedit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_4">
@@ -114,23 +127,36 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLineEdit" name="pointA_lineEdit"/>
+         <widget class="QLineEdit" name="pointA_lineEdit">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
       <item>
        <widget class="QPushButton" name="adjust_coef_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Настройка коэффициентов</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="start_search_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>PushButton</string>
+         <string>Начать подбор длин</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QTextBrowser" name="search_textBrowser"/>
       </item>
       <item>
        <spacer name="verticalSpacer">
