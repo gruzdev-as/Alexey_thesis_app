@@ -11,6 +11,7 @@ import math
 import ui_files.main_design as design
 from graphic_widgets import MplCanvas
 from additional_window import Additional_window
+from thread import Calculation_Thread
 
 class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     '''Main window class'''
@@ -36,8 +37,8 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.penetrability = 1.5e-10
         self.viscosity = 0.3
         self.density =  1.1e3
-        self.preassure_start = 101325
-        self.preassure_end = 15199
+        self.pressure_start = 101325
+        self.pressure_end = 15199
         self.capnum = 1000
         self.sur_tension = 4.6e-2
         self.v_cap = 0.0025
@@ -58,6 +59,7 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             with open(file_path, 'r') as f:
                 data_df = pd.read_csv(file_path, sep=';', decimal='.')
                 self.X_data, self.Y_data = data_df.X.to_numpy() / 1000, data_df.Y.to_numpy() / 1000
+
         else:
             return
 
@@ -94,16 +96,16 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def show_lentgh(self):
         
-        a = int(self.pointA_lineEdit.text())
-        b = int(self.pointB_lineedit.text())
+        a = float(self.pointA_lineEdit.text())
+        b = float(self.pointB_lineedit.text())
 
         length = self.calculate_length(a, b)
 
         self.length_label.setText(f'Длина участка от А до B = {length}')
 
         # Draw the trajectory and points on it in the second view
-        self.graph_first_widget.axes.plot(a, self.polynom(a), '.', markersize=10., color='red')
-        self.graph_first_widget.axes.plot(b, self.polynom(b), '.', markersize=10., color='red')
+        self.graph_first_widget.axes.plot(a, self.polynom(a), '.', markersize=10., color='green')
+        self.graph_first_widget.axes.plot(b, self.polynom(b), '.', markersize=10., color='green')
         self.graph_first_widget.draw()
 
     def calculate_length(self, a, b):
@@ -125,8 +127,8 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.penetrability = float(array[0])
             self.viscosity = float(array[1])
             self.density = float(array[2])
-            self.preassure_start = float(array[3])
-            self.preassure_end = float(array[4])
+            self.pressure_start = float(array[3])
+            self.pressure_end = float(array[4])
             self.capnum = float(array[5])
             self.sur_tension = float(array[6])
 
@@ -134,8 +136,8 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.penetrability,
             self.viscosity,
             self.density,
-            self.preassure_start,
-            self.preassure_end,
+            self.pressure_start,
+            self.pressure_end,
             self.capnum,
             self.sur_tension,
         )
@@ -146,57 +148,18 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     
     def binary_search_points(self):
         '''Bin search for points in the trajectory'''
-
-        def calc_velocity(l0:float, h0:float, l1:float, h1:float) -> float:
-
-            return - (self.penetrability / self.viscosity) * (((self.preassure_end - self.preassure_start) / (l1 - l0)) - (self.density * 9.81 *(h1 - h0)))
-        
-        def search(left, l0, h0):
-
-            right = max(self.X_data)
-            max_l = self.calculate_length(0, right)
-
-            while left <= right:
+        def visualize(points, lengths):
+            self.search_textBrowser.append(f'Рассчет закончен успешно!')
+            self.search_textBrowser.append('#'*35)
+            self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
+            for i in range(len(points[:-1])):
+                self.search_textBrowser.append(f'{points[i]} на длине {lengths[i]}')
+                self.graph_second_widget.axes.plot(points[i][0], points[i][1], '.', markersize = 15, color='Black')
                 
-                # Выбираем точку на прямой 
-                mid_point = (left + right) / 2
+            self.graph_second_widget.axes.grid()
+            self.graph_second_widget.draw()
 
-                # Определяем параметры в этой точке
-                l_mid_point = self.calculate_length(0, mid_point)
-                h_mid_point = self.polynom(mid_point)
-                vf = calc_velocity(l0, h0, l_mid_point, h_mid_point)
-                if round(l_mid_point, 3) == round(max_l, 3):
-                    print('Дошел до конца прямой')
-                    return(mid_point, h_mid_point, vf, l_mid_point)
-
-                if round(vf, 4) == round(self.v_cap, 4):
-                    print(f'Получено равенство скоростей Vk = {round(self.v_cap, 4)}, Vf = {round(vf, 4)}')
-                    print(f'Получил нужное соотношение на точке {mid_point, h_mid_point}, на длине {l_mid_point}')
-                    print('#'*50)
-                    return(mid_point, h_mid_point, vf, l_mid_point)
-                elif round(vf, 4) > round(self.v_cap, 4):
-                    left = mid_point - 0.0002
-                else:
-                    right = mid_point + 0.0002
-            
-            return 0, 0, 0, 0
-
-        h0, l0 = 0, 0
-        points = []
-        left = 0
-
-        while round(left, 3) < round(max(self.X_data), 3):
-
-            X_mid, y_mid, vf, l = search(left, l0, h0)
-            points.append((X_mid, y_mid))
-            l0 = l
-            h0 = y_mid
-            left = X_mid
-        
-        self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
-        for point in points[:-1]:
-            self.search_textBrowser.append(str(point))
-            self.graph_second_widget.axes.plot(point[0], point[1], '.', markersize = 15, color='Black')
-            
-        self.graph_second_widget.axes.grid()
-        self.graph_second_widget.draw()
+        self.search_textBrowser.append(f'Начинаю расчет точек')
+        self.calc_thread = Calculation_Thread(self.__dict__)
+        self.calc_thread.start()
+        self.calc_thread.process_complete.connect(visualize)
