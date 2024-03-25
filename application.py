@@ -193,11 +193,10 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             h0 = y_mid
             left = X_mid
         
-        for point in points:
-            self.search_textBrowser.append(str(point))
-        
         self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
-        for point in points:
+        for point in points[:-1]:
+            self.search_textBrowser.append(str(point))
             self.graph_second_widget.axes.plot(point[0], point[1], '.', markersize = 15, color='Black')
+            
         self.graph_second_widget.axes.grid()
         self.graph_second_widget.draw()
