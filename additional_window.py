@@ -14,6 +14,7 @@ class Additional_window(QtWidgets.QMainWindow, additional_window_ui.Ui_MainWindo
         preassure_end,
         capnum,
         sur_tension,
+        v_cap
     ):
         
         super().__init__()
@@ -27,6 +28,7 @@ class Additional_window(QtWidgets.QMainWindow, additional_window_ui.Ui_MainWindo
         self.preassure_end = preassure_end
         self.capnum = capnum
         self.sur_tension = sur_tension
+        self.v_cap = v_cap
         # Set_text
         self.penetrability_edit.setText(str(self.penetrability))
         self.viscosity_edit.setText(str(self.viscosity))
@@ -35,6 +37,7 @@ class Additional_window(QtWidgets.QMainWindow, additional_window_ui.Ui_MainWindo
         self.preassure_end_edit.setText(str( self.preassure_end))
         self.capnum_edit.setText(str(self.capnum))
         self.sur_tension_edit.setText(str(self.sur_tension))
+        self.v_cap_edit.setText(str(self.v_cap))
 
         # Events 
 
@@ -52,6 +55,7 @@ class Additional_window(QtWidgets.QMainWindow, additional_window_ui.Ui_MainWindo
             self.preassure_end_edit.text(),
             self.capnum_edit.text(),
             self.sur_tension_edit.text(),
+            self.v_cap_edit.text()
             ]
         )
         self.close()

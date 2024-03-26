@@ -131,6 +131,7 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.pressure_end = float(array[4])
             self.capnum = float(array[5])
             self.sur_tension = float(array[6])
+            self.v_cap = float(array[7])
 
         self.edit_window = Additional_window(
             self.penetrability,
@@ -140,6 +141,7 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.pressure_end,
             self.capnum,
             self.sur_tension,
+            self.v_cap
         )
         self.edit_window.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
         self.edit_window.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)   
@@ -149,7 +151,8 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def binary_search_points(self):
         '''Bin search for points in the trajectory'''
         def visualize(points, lengths):
-            self.search_textBrowser.append(f'Рассчет закончен успешно!')
+            self.start_search_button.setEnabled(True)
+            self.search_textBrowser.append(f'Расчет закончен успешно!')
             self.search_textBrowser.append('#'*35)
             self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
             for i in range(len(points[:-1])):
@@ -160,6 +163,9 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.graph_second_widget.draw()
 
         self.search_textBrowser.append(f'Начинаю расчет точек')
+        # Freeze the button
+        self.start_search_button.setEnabled(False)
+        # Start the thread
         self.calc_thread = Calculation_Thread(self.__dict__)
         self.calc_thread.start()
         self.calc_thread.process_complete.connect(visualize)
