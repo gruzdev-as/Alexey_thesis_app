@@ -169,6 +169,9 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 
             self.graph_second_widget.draw()
 
+        def progress_update(progress):
+            self.progressBar.setValue(int(progress * 100))
+
         self.search_textBrowser.append(f'Начинаю расчет точек')
         # Freeze the button
         self.start_search_button.setEnabled(False)
@@ -176,3 +179,4 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.calc_thread = Calculation_Thread(self.__dict__)
         self.calc_thread.start()
         self.calc_thread.process_complete.connect(visualize)
+        self.calc_thread.bar_changed.connect(progress_update)

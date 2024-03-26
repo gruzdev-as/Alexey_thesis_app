@@ -8,6 +8,7 @@ class Calculation_Thread(QtCore.QThread):
 
     # GUI updated
     process_complete = QtCore.pyqtSignal(object, object)
+    bar_changed = QtCore.pyqtSignal(float)
 
     def __init__(self, parameters):
         super(Calculation_Thread, self).__init__()
@@ -55,7 +56,7 @@ class Calculation_Thread(QtCore.QThread):
                 vf = calc_velocity(l0, h0, l_mid_point, h_mid_point)
                 if round(l_mid_point, 3) == round(max_l, 3):
                     print('Дошел до конца прямой')
-                    return(mid_point, h_mid_point, vf, l_mid_point)
+                    return(self.X_data.max(), h_mid_point, vf, l_mid_point)
 
                 if round(vf, 4) == round(self.v_cap, 4):
                     print(f'Получено равенство скоростей Vk = {round(self.v_cap, 4)}, Vf = {round(vf, 4)}')
@@ -81,6 +82,8 @@ class Calculation_Thread(QtCore.QThread):
             lengths.append(round(calculate_length(left, X_mid), 4))
             l0 = l
             h0 = y_mid
-            left = X_mid    
+            left = X_mid
+
+            self.bar_changed.emit(round(left / max(self.X_data), 2))    
 
         self.process_complete.emit(points, lengths)
