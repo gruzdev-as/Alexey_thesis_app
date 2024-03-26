@@ -79,6 +79,7 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         
         # Draw the line and points 
         self.graph_first_widget.axes.clear()
+        self.graph_first_widget.axes.grid()
         self.graph_first_widget.axes.plot(self.X_data, self.Y_data, '.')
         self.graph_first_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
         self.graph_first_widget.draw()
@@ -87,6 +88,11 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         x = symbols('x')
         self.formula = sum(S("{:}".format(v))*x**i for i, v in enumerate(coef[::-1]))
         self.poly_display_textbrowser.setText(str(self.formula))
+
+        # Fill labels with the additional data 
+        self.max_x_label.setText(f'Координата x_max: {round(max(self.X_data), 4)}')
+        self.max_y_label.setText(f'Координата y_max: {round(max(self.Y_data), 4)}')
+        self.len_label.setText(f'Длина траектории: {round(self.calculate_length(0, max(self.Y_data)), 4)}')
 
         self.pointA_lineEdit.setEnabled(True)
         self.pointB_lineedit.setEnabled(True)
@@ -154,12 +160,13 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.start_search_button.setEnabled(True)
             self.search_textBrowser.append(f'Расчет закончен успешно!')
             self.search_textBrowser.append('#'*35)
+            self.graph_second_widget.axes.clear()
+            self.graph_second_widget.axes.grid()
             self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
             for i in range(len(points[:-1])):
                 self.search_textBrowser.append(f'{points[i]} на длине {lengths[i]}')
                 self.graph_second_widget.axes.plot(points[i][0], points[i][1], '.', markersize = 15, color='Black')
                 
-            self.graph_second_widget.axes.grid()
             self.graph_second_widget.draw()
 
         self.search_textBrowser.append(f'Начинаю расчет точек')
