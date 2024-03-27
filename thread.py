@@ -7,8 +7,9 @@ import math
 class Calculation_Thread(QtCore.QThread):
 
     # GUI updated
-    process_complete = QtCore.pyqtSignal(object, object)
-    bar_changed = QtCore.pyqtSignal(float)
+    step_made = QtCore.pyqtSignal(object, float, float)
+    finished = QtCore.pyqtSignal()
+
 
     def __init__(self, parameters):
         super(Calculation_Thread, self).__init__()
@@ -54,7 +55,7 @@ class Calculation_Thread(QtCore.QThread):
                 l_mid_point = calculate_length(0, mid_point)
                 h_mid_point = self.polynom(mid_point)
                 vf = calc_velocity(l0, h0, l_mid_point, h_mid_point)
-                if round(l_mid_point, 3) == round(max_l, 3):
+                if round(l_mid_point, 2) == round(max_l, 2):
                     print('Дошел до конца прямой')
                     return(self.X_data.max(), h_mid_point, vf, l_mid_point)
 
@@ -78,12 +79,16 @@ class Calculation_Thread(QtCore.QThread):
         while round(left, 3) < round(max(self.X_data), 3):
 
             X_mid, y_mid, vf, l = search(left, l0, h0)
-            points.append((round(X_mid, 4), round(y_mid, 4)))
-            lengths.append(round(calculate_length(left, X_mid), 4))
+            
+            point = (round(X_mid, 4), round(y_mid, 4))
+            length = round(calculate_length(left, X_mid), 4)
+
             l0 = l
             h0 = y_mid
             left = X_mid
 
-            self.bar_changed.emit(round(left / max(self.X_data), 2))    
+            progress = round(left / max(self.X_data), 2)
 
-        self.process_complete.emit(points, lengths)
+            self.step_made.emit(point, length, progress)    
+
+        self.finished.emit()

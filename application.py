@@ -156,21 +156,20 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
     
     def binary_search_points(self):
         '''Bin search for points in the trajectory'''
-        def visualize(points, lengths):
+        def visualize(point, length, progress):
+                        
+            self.progressBar.setValue(int(progress * 100))
+
+            if point[0] != self.X_data.max():
+                self.search_textBrowser.append(f'{point} на длине {length}')
+                self.graph_second_widget.axes.plot(point[0], point[1], '.', markersize = 15, color='Black')
+                self.graph_second_widget.draw()
+
+        def finish():
             self.start_search_button.setEnabled(True)
             self.search_textBrowser.append(f'Расчет закончен успешно!')
             self.search_textBrowser.append('#'*35)
-            self.graph_second_widget.axes.clear()
-            self.graph_second_widget.axes.grid()
-            self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
-            for i in range(len(points[:-1])):
-                self.search_textBrowser.append(f'{points[i]} на длине {lengths[i]}')
-                self.graph_second_widget.axes.plot(points[i][0], points[i][1], '.', markersize = 15, color='Black')
-                
-            self.graph_second_widget.draw()
-
-        def progress_update(progress):
-            self.progressBar.setValue(int(progress * 100))
+            
 
         self.search_textBrowser.append(f'Начинаю расчет точек')
         # Freeze the button
@@ -178,5 +177,13 @@ class MainApplication(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Start the thread
         self.calc_thread = Calculation_Thread(self.__dict__)
         self.calc_thread.start()
-        self.calc_thread.process_complete.connect(visualize)
-        self.calc_thread.bar_changed.connect(progress_update)
+        self.calc_thread.step_made.connect(visualize)
+        self.calc_thread.finished.connect(finish)
+        
+        self.graph_second_widget.axes.clear()
+        self.graph_second_widget.axes.grid()
+        self.graph_second_widget.axes.plot(self.x_poly_values, self.y_poly_values, color='red')
+        self.graph_second_widget.draw()
+        
+
+        
